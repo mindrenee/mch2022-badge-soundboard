@@ -28,6 +28,8 @@ def on_action_btn(pressed):
 def renderMenu(nextMenuItem):
     global menuItem
     y = 5
+    print(display.size())
+    # TODO: Scroll if display height is reached (y = 240px)
     display.drawFill(0xFFFFFF)
     for i in range(len(sounds)):
         if i == nextMenuItem:
