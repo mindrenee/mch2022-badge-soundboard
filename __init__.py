@@ -3,6 +3,7 @@ import random
 import os
 import buttons
 import display
+import mch22
 
 SOUND_BASE_DIR="/apps/python/soundboard/sounds"
 
@@ -55,6 +56,13 @@ def on_action_btn_down(pressed):
         else:
             newMenuItem = menuItem + 1
         renderMenu(newMenuItem)
+
+def reboot(pressed):
+  if pressed:
+    print("Test")
+    mch22.exit_python()
+
+buttons.attach(buttons.BTN_HOME,reboot)
 
 renderMenu(0)
 buttons.attach(buttons.BTN_A, on_action_btn)
