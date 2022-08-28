@@ -1,3 +1,4 @@
+from time import sleep
 import audio
 import random
 import os
@@ -12,62 +13,68 @@ n_sounds = len(os.listdir(SOUND_BASE_DIR))
 menuItem = 0
 page = 0
 sounditem = 0
-soundlists = [sounds[i:i + 13] for i in range(0, len(sounds), 13)]
+soundlists = [sounds[i:i + 10] for i in range(0, len(sounds), 10)]
 pages = len(soundlists)
-
-def play_random_sound():
-    rand = random.randint(0, n_sounds - 1)
-    sound = SOUND_BASE_DIR + "/" +  sounds[rand]
-    print(sound)
-    channel_id = audio.play(sound, volume=150)
+sound = ""
 
 def play_selected_sound():
-    print(sounds[sounditem])
-    sound = SOUND_BASE_DIR + "/" +  sounds[sounditem]
+    global sound
+    sound = SOUND_BASE_DIR + "/" + sound
     channel_id = audio.play(sound, volume=150)
 
 def on_action_btn(pressed):
     if pressed:
-        #play_random_sound()
         play_selected_sound()
+
+# TODO: Make splashscreen 
+def spashScreen():
+    display.drawFill(0xFFFFFF)
+
+    display.flush()
+    sleep(3)
 
 def renderMenu(nextMenuItem, nextpage):
     global sounditem
     global menuItem
     global page
-    y = 5
+    global sound
+    y = 10
     # Background (white)
     display.drawFill(0xFFFFFF)
 
-    display.drawText(135, 220, "<", 0x000000)
+    display.drawText(135, 220, "<", 0x000000, "ocra16")
     x = 150
     for j in range(pages):
         if j == nextpage:
-            display.drawText(x, 220, str(j+1), 0xFF0000)
+            display.drawText(x, 220, str(j+1), 0xFF0000, "ocra16")
         else:
-            display.drawText(x, 220, str(j+1), 0x000000)
+            display.drawText(x, 220, str(j+1), 0x000000, "ocra16")
         x = x + 15
-    display.drawText(x, 220, ">", 0x000000)
+    display.drawText(x, 220, ">", 0x000000, "ocra16")
     page = nextpage
 
     for i in range(len(soundlists[page])):
         if i == nextMenuItem:
-            display.drawText(10, y, soundlists[page][i], 0xFF0000)
-            # Netter maken voor als we meer dan 2 pagina's hebben
+            display.drawText(10, y, soundlists[page][i].replace(".mp3", ""), 0xFF0000, "ocra16")
             if page != 0:
-                sounditem = i + 1 + len(soundlists[page]) + 1
-                print(sounds[sounditem])
+                counter = page
+                while counter != 0:
+                    sounditem = sounditem + len(soundlists[counter-1])
+                    counter = counter - 1
+                sounditem = sounditem + i 
+                sound = sounds[sounditem]
             else:
                 sounditem = nextMenuItem
-                print(sounds[sounditem])
+                sound = sounds[sounditem]
         else:
-            display.drawText(10, y, soundlists[page][i], 0x000000)
-        y = y + 15
+            display.drawText(10, y, soundlists[page][i].replace(".mp3", ""), 0x000000, "ocra16")
+        y = y + 18
     display.flush()
     menuItem = nextMenuItem
   
 def on_action_btn_up(pressed):
-    # TODO max 13 sounds per page
+    global sounditem 
+    sounditem = 0
     if pressed:
         if menuItem == 0:
             newMenuItem = len(soundlists[page]) - 1
@@ -76,15 +83,18 @@ def on_action_btn_up(pressed):
         renderMenu(newMenuItem, page)
 
 def on_action_btn_down(pressed):
-    # TODO max 13 sounds per page
+    global sounditem 
+    sounditem = 0
     if pressed:
-        if menuItem == len(soundlists[page]):
+        if menuItem == len(soundlists[page]) - 1:
             newMenuItem = 0
         else:
             newMenuItem = menuItem + 1
         renderMenu(newMenuItem, page)
 
 def on_action_btn_left(pressed):
+    global sounditem 
+    sounditem = 0
     if pressed:
         newMenuItem = 0
         if page == 0:
@@ -95,9 +105,11 @@ def on_action_btn_left(pressed):
         renderMenu(newMenuItem, newpage)
 
 def on_action_btn_right(pressed):
+    global sounditem 
+    sounditem = 0
     if pressed:
         newMenuItem = 0
-        if page == pages:
+        if page == pages - 1:
             newpage = 0
         else:
             newpage = page + 1
